@@ -7,6 +7,12 @@ from users import User
 from streamlit_ace import st_ace
 from streamlit_option_menu import option_menu
 from datetime import datetime, timedelta
+from streamlit_calendar import calendar
+import streamlit.components.v1 as components
+import os
+
+
+
 
 if "state" not in st.session_state:
     st.session_state["state"] = "Nutzer-Verwaltung"
@@ -50,9 +56,9 @@ def nutzer_verwaltung():
                 if not nutzer_name or not nutzer_email:
                     st.warning("Bitte fülle alle erforderlichen Felder aus.")
                 else:
-                    neuer_nutzer = User(id=nutzer_email, name=nutzer_name)
-                    neuer_nutzer.store_data()
-                    st.success(f"Nutzer '{neuer_nutzer.name}' mit E-Mail '{neuer_nutzer.id}' wurde angelegt.")
+                    neuer_nutzer = User(name=nutzer_name, email=nutzer_email)
+                    neuer_nutzer.store()
+                    st.success(f"Nutzer '{neuer_nutzer.name}' mit E-Mail '{neuer_nutzer.email}' wurde angelegt.")
         
         st.button("Zurück", on_click=Nutzer_Verwaltung_Start)
                     
@@ -60,19 +66,19 @@ def nutzer_verwaltung():
     if st.session_state["state"] == "Nutzer löschen":
         
         with st.form(key='loeschen_form'):
-            alle_benutzer = [user.name for user in User.load_all_data()]
-            nutzer_name = st.selectbox("Name des zu löschenden Nutzers:", alle_benutzer)
+            alle_benutzer = [user['id'] for user in User.find_all()]
+            nutzer_email = st.selectbox("Email des zu löschenden Nutzers:", alle_benutzer)
             submit_button = st.form_submit_button(label='Nutzer löschen')
             if submit_button:
-                if not nutzer_name:
+                if not nutzer_email:
                     st.warning("Bitte wählen Sie den Namen des zu löschenden Nutzers aus.")
                 else:
-                    zu_loeschender_nutzer = User.load_data_by_name(nutzer_name)
+                    zu_loeschender_nutzer = User.load_by_id(id=nutzer_email)
                     if zu_loeschender_nutzer is None:
-                        st.error(f"Kein Nutzer mit dem Namen '{nutzer_name}' gefunden.")
+                        st.error(f"Kein Nutzer mit dem email '{nutzer_email}' gefunden.")
                     else:
-                        zu_loeschender_nutzer.delete_data()
-                        st.success(f"Nutzer '{zu_loeschender_nutzer.name}' mit email '{zu_loeschender_nutzer.id} wurde gelöscht.")
+                        zu_loeschender_nutzer.delete()
+                        st.success(f"Nutzer '{zu_loeschender_nutzer.name}' mit email '{zu_loeschender_nutzer.email} wurde gelöscht.")
           
         st.button("Zurück", on_click=Nutzer_Verwaltung_Start)    
 
@@ -126,7 +132,7 @@ def get_datetime_input(label):
 
     return selected_datetime
 
-devices_in_db = find_devices()
+
 
 
 
@@ -151,7 +157,7 @@ def geraet_verwaltung():
 
     if st.session_state["state"] == "Gerät anlegen":
             with st.form(key='gereat_form'):
-                alle_benutzer = [user.name for user in User.load_all_data()]
+                alle_benutzer = [user['id'] for user in User.find_all()]
                 device_name = st.text_input("Gerät:")
                 device_verantwortlicher = st.selectbox("Veranwortlicher:", alle_benutzer)
                 submit_button = st.form_submit_button(label='Gerät anlegen')
@@ -163,7 +169,7 @@ def geraet_verwaltung():
                     else:
                         device_name = Device(device_name=device_name, managed_by_user_id=device_verantwortlicher)
                 
-                        device_name.store_data()
+                        device_name.store()
                         
                         st.success(f"Gerät '{device_name.device_name}' wurde angelegt.")
             st.button("Zurück", on_click=Nutzer_Verwaltung_Start)
@@ -171,36 +177,58 @@ def geraet_verwaltung():
     if st.session_state["state"] == "Gerät löschen":
             
         with st.form(key='loeschen_form'):
-            alle_geraete = [device.device_name for device in Device.load_all_data()]
+            alle_geraete = [device['device_name'] for device in Device.find_all()]
             geraet_name = st.selectbox("Gerät:", alle_geraete)
             submit_button = st.form_submit_button(label='Gerät löschen')
             if submit_button:
                 if not geraet_name:
                     st.warning("Bitte wählen Sie das zu löschende Gerät aus.")
                 else:
-                    zu_loeschendes_geraet = Device.load_data_by_device_name(geraet_name)
+                    zu_loeschendes_geraet = Device.load_by_id(id=geraet_name)
                     if zu_loeschendes_geraet is None:
                         st.error(f"Kein Gerät mit dem Namen '{geraet_name}' gefunden.")
                     else:
-                        zu_loeschendes_geraet.delete_data()
+                        zu_loeschendes_geraet.delete()
                         st.success(f"Gerät '{zu_loeschendes_geraet.device_name}' wurde gelöscht.")
                         
         st.button("Zurück", on_click=Nutzer_Verwaltung_Start)
 
-    alle_geraete = [device.device_name for device in Device.load_all_data()]
+
+
+    alle_geraete = [device['device_name'] for device in Device.find_all()]
 
     geraet_name = st.selectbox("Gerät:", alle_geraete)
 
-    # Vorauswahl für Aktion (Warten oder Reservieren)
-    aktion = st.radio("Aktion auswählen:", ["Wartungstermin auswählen", "Reservierungszeitraum auswählen"])
+    #aktion = ["Wartungstermin auswählen", "Reservierungszeitraum auswählen"]
 
-    if aktion == "Wartungstermin auswählen":
-        # Wartungstermin mit Stundenangabe
+    with st.container():
+        selected2 = option_menu(None, ["Wartung", "Reservierung"], 
+        icons=['house', 'cloud-upload', "list-task", 'gear'], 
+        menu_icon="cast", default_index=0, orientation="horizontal")
+
+    if selected2 == "Wartung":
+        #aktion = ["Warungstermin auswählen"]
         st.write("Wählen Sie einen Wartungstermin:")
         geraet_wartungsdatum = get_datetime_input("Wartungstermin")
-        geraet_reservierungsbedarf_start = None
-        geraet_reservierungsbedarf_ende = None
-    else:  # Reservierungszeitraum auswählen
+
+
+        if st.button("Wartungsdatum speichern"):
+            geraet = Device.load_by_id(geraet_name)   # Laden Sie das Gerät aus der Datenbank
+            if geraet:
+                if selected2 == "Wartung":
+                    geraet.wartungsdatum_aendern(wartungsdatum=geraet_wartungsdatum)
+                      # Ändern Sie das Wartungsdatum
+                    st.success(f"Wartungstermin für das Gerät '{geraet_name}' wurde für den {geraet_wartungsdatum} festgelegt.")
+            else:
+                st.error('Gerät nicht gefunden.')
+
+        
+        
+  
+            
+
+    if selected2 == "Reservierung":
+        #aktion = ["Reservierungszeitraum auswählen"]
         geraet_reservierungsbedarf_start = st.date_input("Reservierungsbedarf Startdatum:")
         geraet_reservierungsbedarf_ende = st.date_input("Reservierungsbedarf Enddatum:")
 
@@ -223,22 +251,44 @@ def geraet_verwaltung():
         # Anzeige des ausgewählten Reservierungszeitraums
         st.write(f"Ausgewählter Reservierungszeitraum: Von {geraet_reservierungsbedarf_start} bis {geraet_reservierungsbedarf_ende}")
 
-        geraet_wartungsdatum = None
+        if st.button("Reservierung speichern"):
+            geraet = Device.load_by_id(geraet_name)   # Laden Sie das Gerät aus der Datenbank
+            if geraet:
+                if selected2 == "Reservierung":
+                    geraet.Reservierungszeitraum(start=geraet_reservierungsbedarf_start, end=geraet_reservierungsbedarf_ende)
+                      # Ändern Sie das Wartungsdatum
+                    st.success(f"Gerät '{geraet_name}' reserviert von {geraet_reservierungsbedarf_start} bis {geraet_reservierungsbedarf_ende}")
+            else:
+                st.error('Gerät nicht gefunden.') 
 
-    if st.button("Gerät anlegen/ändern"):
-        if aktion == "Wartungstermin auswählen":
-            # Logik für Wartungstermin
-            beispiel_geraet.wartungsdatum_aendern(geraet_wartungsdatum)
-            st.success(f"Wartungstermin für '{geraet_name}' wurde auf '{geraet_wartungsdatum}' festgelegt.")
-        elif aktion == "Reservierungszeitraum auswählen":
-            # Logik für Reservierungszeitraum
-            beispiel_geraet.reservierung_hinzufuegen(geraet_reservierungsbedarf_start, geraet_reservierungsbedarf_ende, beispiel_nutzer)
-            st.success(f"Gerät '{geraet_name}' wurde mit Reservierungsbedarf von '{geraet_reservierungsbedarf_start}' bis '{geraet_reservierungsbedarf_ende}' angelegt/geändert.")
+def Kalendar():
+    st.title("Wartungs- und Reservierungstermine")
 
+    alle_geraete = [device['device_name'] for device in Device.find_all()]
+
+    geraet = st.selectbox("Gerät:", alle_geraete)
+    
+    # Laden Sie das ausgewählte Gerät
+    geraet = Device.load_by_id(geraet)
+
+    if geraet and geraet.maintenance_date:
+        # Zeigen Sie das Wartungsdatum des Geräts an
+        st.text(f"Wird am {geraet.maintenance_date} gewartet.")
+    else:
+        st.text(f"Für das Gerät '{geraet.device_name}' ist kein Wartungsdatum festgelegt.")
+
+    if geraet and geraet.reservierung_start and geraet.reservierung_end:
+        # Zeigen Sie den Reservierungszeitraum des Geräts an
+        st.text(f"Von {geraet.reservierung_start} bis {geraet.reservierung_end} reserviert.")
+    else:
+        st.text(f"Für das Gerät '{geraet.device_name}' ist kein Reservierungszeitraum festgelegt.")
+
+
+    
 
 
 with st.container():
-    selected2 = option_menu(None, ["Nutzer-Verwaltung", "Geräte-Verwaltung"], 
+    selected2 = option_menu(None, ["Nutzer-Verwaltung", "Geräte-Verwaltung", "Kalendar"], 
     icons=['house', 'cloud-upload', "list-task", 'gear'], 
     menu_icon="cast", default_index=0, orientation="horizontal")
        
@@ -250,6 +300,12 @@ if selected2 == "Nutzer-Verwaltung":
     
 elif selected2 == "Geräte-Verwaltung":
     
-    geraet_verwaltung()
+    geraet_verwaltung() 
+
+elif selected2 == "Kalendar":
+
+    Kalendar()
+
+
 
 

@@ -1,69 +1,58 @@
-import os
-from tinydb import TinyDB, Query 
-from serializer import serializer
+from serializable import Serializable
+from database_inheritance import DatabaseConnector
+from tinydb import Query
 
-
-class User:
+class User(Serializable):
     
-    db_connector = TinyDB(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database.json'), storage=serializer).table('users')
-
-    def __init__(self, id, name):
-        self.id = id
+    def __init__(self, name, email) -> None:
+        super().__init__(email)
         self.name = name
-        self.db = TinyDB('database.json')
+        self.email = email
+
+    @classmethod
+    def get_db_connector(cls):
+        return DatabaseConnector().get_users_table()
+
+    def store(self):
+        print("Storing user...")
+        super().store()
+
+    @classmethod
+    def load_by_id(cls, id):
+        print("Loading user...")
+        data = super().load_by_id(id)
+        if data:
+            return cls(data['name'], data['email'])
+        else:
+            return None
         
+    def delete(self):
+        super().delete()
+        print("User deleted.")
 
     def __str__(self):
-        return f"{self.name} ({self.id})"
-    
-    def to_dict(self):
-        return {"id": self.id, "name": self.name}
-    
-    def store_data(self):
-        print("Storing user data...")
-        # Check if the user already exists in the database
-        UserQuery = Query()
-        result = self.db_connector.search(UserQuery.id == self.id)
-        if result:
-            # Update the existing record with the current instance's data
-            result = self.db_connector.update(self.to_dict(), doc_ids=[result[0].doc_id])
-            print("User data updated.")
-        else:
-            # If the user doesn't exist, insert a new record
-            self.db_connector.insert(self.to_dict())
-            print("User data inserted.")
-            
-    @classmethod
-    def load_data_by_id(cls, user_id):
-        # Lade Daten aus der Datenbank und erstelle eine Instanz der User-Klasse
-        UserQuery = Query()
-        result = cls.db_connector.get(UserQuery.id == user_id)
+        return F"User: {self.name} ({self.email})"
 
-        if result:
-            data = result
-            return cls(data['id'], data['name'])
-        else:
-            return None
-        
-    @classmethod
-    def load_data_by_name(cls, user_name):
-        # Lade Daten aus der Datenbank und erstelle eine Instanz der User-Klasse
-        UserQuery = Query()
-        result = cls.db_connector.get(UserQuery.name == user_name)
+    def __repr__(self):
+        return self.__str__()
 
-        if result:
-            data = result
-            return cls(data['id'], data['name'])
-        else:
-            return None
-        
-    @classmethod
-    def load_all_data(cls):
-        # Lade alle Benutzer aus der Datenbank und erstelle eine Liste von User-Objekten
-        all_data = cls.db_connector.all()
-        return [cls(data['id'], data['name']) for data in all_data]
-     
-    def delete_data(self):
-        UserQuery = Query()
-        result = self.db_connector.remove(UserQuery.id == self.id)
-        return result
+if __name__ == "__main__":
+    # Create a device
+    user1 = User("User One", "one@mci.edu")
+    user2 = User("User Two", "two@mci.edu") 
+    user3 = User("User Three", "three@mci.edu") 
+    user1.store()
+    user2.store()
+    user3.store()
+    user4 = User("User Four", "four@mci.edu") 
+    user4.store()
+
+    loaded_user = User.load_by_id("four@mci.edu")
+    if loaded_user:
+        print(f"Loaded: {loaded_user}")
+    else:
+        print("User not found.")
+
+    all_users = User.find_all()
+    for user in all_users:
+        print(user)
