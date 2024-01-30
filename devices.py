@@ -8,7 +8,7 @@ from tinydb import Query
 
 class Device(Serializable):
 
-    def __init__(self, device_name: str, managed_by_user_id: str, maintenance_date: datetime = None, reservierung_start = None, reservierung_end = None, end_of_life: datetime = None, creation_date: datetime = None, last_update: datetime = None):
+    def __init__(self, device_name: str, managed_by_user_id: str, end_of_life: datetime = None, creation_date: datetime = None, last_update: datetime = None, maintenance_date: datetime = None, reservierung_start = None, reservierung_end = None):
         super().__init__(device_name)
         self.device_name = device_name
         # The user id of the user that manages the device
@@ -37,10 +37,16 @@ class Device(Serializable):
         print("Loading device...")
         data = super().load_by_id(id)
         if data:
-            return cls(data['device_name'], data['managed_by_user_id'], data['end_of_life'], data['_Device__creation_date'], data['_Device__last_update'])
+            return cls(data['device_name'], data['managed_by_user_id'], data['end_of_life'], data['_Device__creation_date'],
+                   data['_Device__last_update'], data['maintenance_date'], data['reservierung_start'],
+                   data['reservierung_end'])
+        
         else:
             return None
     
+  
+
+
     def delete(self):
         super().delete()
         print("Device deleted.")
@@ -53,13 +59,13 @@ class Device(Serializable):
     
     def wartungsdatum_aendern(self, wartungsdatum: datetime):
         self.maintenance_date = wartungsdatum
-        self.store()
+        super().store()
 
     def Reservierungszeitraum(self, start: datetime, end: datetime):
         self.is_active = False
-        self.resrvierung_start = start
+        self.reservierung_start = start
         self.reservierung_end = end
-        self.store() 
+        super().store() 
 
     def Wartung_löschen(self, wartungsdatum: datetime):
         self.maintenance_date = wartungsdatum

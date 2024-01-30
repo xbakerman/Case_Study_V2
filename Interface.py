@@ -39,6 +39,8 @@ def nutzer_verwaltung():
         with col1:
             st.expander("Neuen Nutzer anlegen")
             st.button("Neuen Nutzer anlegen", on_click=Nutzer_Anlegen)
+            
+            
         with col2:
             st.expander("Nutzer löschen")
             st.button("Nutzer löschen", on_click=Nutzer_Löschen)
@@ -203,7 +205,7 @@ def geraet_verwaltung():
 
     with st.container():
         selected2 = option_menu(None, ["Wartung", "Reservierung"], 
-        icons=['house', 'cloud-upload', "list-task", 'gear'], 
+        icons=['bi bi-gear-fill', 'bi bi-journal-check'], 
         menu_icon="cast", default_index=0, orientation="horizontal")
 
     if selected2 == "Wartung":
@@ -268,20 +270,18 @@ def Kalendar():
 
     geraet = st.selectbox("Gerät:", alle_geraete)
     
-    # Laden Sie das ausgewählte Gerät
+    
     geraet = Device.load_by_id(geraet)
 
-    if geraet and geraet.maintenance_date:
-        # Zeigen Sie das Wartungsdatum des Geräts an
-        st.text(f"Wird am {geraet.maintenance_date} gewartet.")
-    else:
-        st.text(f"Für das Gerät '{geraet.device_name}' ist kein Wartungsdatum festgelegt.")
+    if st.button("Wartungsdatum anzeigen"):
+        
+        st.text(f"'{geraet.id}' wird am {geraet.maintenance_date} gewartet.")
+    
 
-    if geraet and geraet.reservierung_start and geraet.reservierung_end:
-        # Zeigen Sie den Reservierungszeitraum des Geräts an
-        st.text(f"Von {geraet.reservierung_start} bis {geraet.reservierung_end} reserviert.")
-    else:
-        st.text(f"Für das Gerät '{geraet.device_name}' ist kein Reservierungszeitraum festgelegt.")
+    if st.button("Reservierungszeitraum anzeigen"):
+        
+        st.text(f"'{geraet.id}' von {geraet.reservierung_start} bis {geraet.reservierung_end} reserviert.")
+    
 
 
     
@@ -289,7 +289,7 @@ def Kalendar():
 
 with st.container():
     selected2 = option_menu(None, ["Nutzer-Verwaltung", "Geräte-Verwaltung", "Kalendar"], 
-    icons=['house', 'cloud-upload', "list-task", 'gear'], 
+    icons=['bi bi-person-circle', 'bi bi-gear-fill', 'bi bi-calendar'], 
     menu_icon="cast", default_index=0, orientation="horizontal")
        
 
