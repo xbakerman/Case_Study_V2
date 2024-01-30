@@ -1,1 +1,56 @@
-{"users": {"1": {"id": "beispiel1@mci.edu", "name": "beispiel 1", "email": "beispiel1@mci.edu"}, "2": {"id": "beispiel2@mci.edu", "name": "beispiel2", "email": "beispiel2@mci.edu"}, "3": {"id": "beispiel3@mci.edu", "name": "beispiel3", "email": "beispiel3@mci.edu"}, "4": {"id": "nm@mci.edu", "name": "Max Nachbaur", "email": "nm@mci.edu"}, "5": {"id": "mb@mci.edu", "name": "Markus Brachmann", "email": "mb@mci.edu"}, "6": {"id": "test@mci.at", "name": "Test 1", "email": "test@mci.at"}}, "devices": {"7": {"id": "3D Drucker", "device_name": "3D Drucker", "managed_by_user_id": "beispiel2@email.com", "is_active": true, "end_of_life": "{TinyDateTime}:2024-01-31T07:00:00", "_Device__creation_date": "{TinyDate}:2024-01-29", "_Device__last_update": "{TinyDate}:2024-01-29", "maintenance_date": "{TinyDateTime}:2024-01-30T16:00:00", "reservierung_start": "{TinyDate}:2024-01-30", "reservierung_end": "{TinyDate}:2024-01-30", "resrvierung_start": "{TinyDate}:2024-01-30"}, "8": {"id": "CNC Fr\u00e4se", "device_name": "CNC Fr\u00e4se", "managed_by_user_id": "h@mci4me.at", "is_active": false, "end_of_life": "{TinyDateTime}:2024-02-06T09:00:00", "_Device__creation_date": "{TinyDate}:2024-01-26", "_Device__last_update": "{TinyDate}:2024-01-26", "maintenance_date": "{TinyDateTime}:2024-01-31T07:00:00", "reservierung_start": "{TinyDate}:2024-02-12", "reservierung_end": "{TinyDate}:2024-02-13"}, "9": {"id": "Standbohrmaschine", "device_name": "Standbohrmaschine", "managed_by_user_id": "nm@mci.edu", "is_active": false, "end_of_life": "{TinyDate}:2024-01-30", "_Device__creation_date": "{TinyDate}:2024-01-30", "_Device__last_update": "{TinyDate}:2024-01-30", "maintenance_date": "{TinyDateTime}:2024-02-08T09:00:00", "reservierung_start": "{TinyDate}:2024-02-05", "reservierung_end": "{TinyDate}:2024-02-06"}}}
+{
+    "users": {
+        "1": {
+            "id": "beispiel1@mci.edu",
+            "name": "beispiel 1",
+            "email": "beispiel1@mci.edu"
+        },
+        "2": {
+            "id": "beispiel2@mci.edu",
+            "name": "beispiel2",
+            "email": "beispiel2@mci.edu"
+        },
+        "3": {
+            "id": "beispiel3@mci.edu",
+            "name": "beispiel3",
+            "email": "beispiel3@mci.edu"
+        },
+        "4": {
+            "id": "nm@mci.edu",
+            "name": "Max Nachbaur",
+            "email": "nm@mci.edu"
+        },
+        "5": {
+            "id": "mb@mci.edu",
+            "name": "Markus Brachmann",
+            "email": "mb@mci.edu"
+        }
+    },
+    "devices": {
+        "7": {
+            "id": "3D Drucker",
+            "device_name": "3D Drucker",
+            "managed_by_user_id": "beispiel2@email.com",
+            "is_active": true,
+            "end_of_life": "{TinyDateTime}:2024-01-31T07:00:00",
+            "_Device__creation_date": "{TinyDate}:2024-01-29",
+            "_Device__last_update": "{TinyDate}:2024-01-29",
+            "maintenance_date": "{TinyDateTime}:2024-01-30T16:00:00",
+            "reservierung_start": "{TinyDate}:2024-01-30",
+            "reservierung_end": "{TinyDate}:2024-01-30",
+            "resrvierung_start": "{TinyDate}:2024-01-30"
+        },
+        "8": {
+            "id": "CNC Fr\u00e4se",
+            "device_name": "CNC Fr\u00e4se",
+            "managed_by_user_id": "h@mci4me.at",
+            "is_active": false,
+            "end_of_life": "{TinyDateTime}:2024-02-06T09:00:00",
+            "_Device__creation_date": "{TinyDate}:2024-01-26",
+            "_Device__last_update": "{TinyDate}:2024-01-26",
+            "maintenance_date": "{TinyDateTime}:2024-01-31T07:00:00",
+            "reservierung_start": "{TinyDate}:2024-02-12",
+            "reservierung_end": "{TinyDate}:2024-02-13"
+        }
+    }
+}
