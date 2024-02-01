@@ -44,16 +44,19 @@ class Serializable(ABC):
         result = self.get_db_connector().remove(query.id == self.id)
 
     #Do not modify this function unless you really know what you are doing!
-    def to_dict(self, obj=None):
+    def to_dict(self, *args):
         """
         This function converts an object recursively into a dict.
         It is not neccessary to understand how this function works!
         For the sake of simplicity it doesn't handle class attributes and callable objects like (callback) functions as attributes well
         """
+
         #If no object is passed to the function convert the object itself
-        if obj is None:
+        if len(args) > 0:
+            obj = args[0] #ignore all other objects but the first one
+        else:
             obj = self
-            
+
         if isinstance(obj, dict):
             #If the object is a dict try converting all its values into dicts also
             data = {}

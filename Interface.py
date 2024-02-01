@@ -135,13 +135,6 @@ def get_datetime_input(label):
     return selected_datetime
 
 
-
-
-
-
-
-
-
 def gerät_löschen():
     st.session_state["state"] = "Gerät löschen"
 
@@ -222,11 +215,30 @@ def geraet_verwaltung():
                       # Ändern Sie das Wartungsdatum
                     st.success(f"Wartungstermin für das Gerät '{geraet_name}' wurde für den {geraet_wartungsdatum} festgelegt.")
             else:
+                st.error('Gerät nicht gefunden.') 
+
+        if st.button("Wartungstermin austragen"):
+            geraet = Device.load_by_id(geraet_name)
+            if geraet:
+                geraet.Wartung_löschen()
+                st.success(f"Wartungstermin für '{geraet.id}' wurde ausgetragen.")
+            else:
+                st.error('Gerät nicht gefunden.')
+
+        device_wartungskosten = st.number_input("Wartungskosten in €:", min_value=0.0, step=0.01)
+        
+        submit_button = st.button(label='Wartungskosten speichern')
+
+        if submit_button:
+            geraet = Device.load_by_id(geraet_name)
+            if geraet:
+                geraet.wartungskosten = device_wartungskosten
+                geraet.store()
+                st.success(f"Wartungskosten für '{geraet.id}' wurden gespeichert.")
+            else:
                 st.error('Gerät nicht gefunden.')
 
         
-        
-  
             
 
     if selected2 == "Reservierung":
@@ -263,6 +275,14 @@ def geraet_verwaltung():
             else:
                 st.error('Gerät nicht gefunden.') 
 
+        if st.button("Reservierung austragen"):
+            geraet = Device.load_by_id(geraet_name)
+            if geraet:
+                geraet.Reservierung_löschen()
+                st.success(f"Reservierung für '{geraet.id}' wurde ausgetragen.")
+            else:
+                st.error('Gerät nicht gefunden.')
+
 def Kalendar():
     st.title("Wartungs- und Reservierungstermine")
 
@@ -273,16 +293,28 @@ def Kalendar():
     
     geraet = Device.load_by_id(geraet)
 
-    if st.button("Wartungsdatum anzeigen"):
-        
-        st.text(f"'{geraet.id}' wird am {geraet.maintenance_date} gewartet.")
-    
+   
 
-    if st.button("Reservierungszeitraum anzeigen"):
+    if geraet and geraet.maintenance_date:
+        if st.button("Wartungsdatum anzeigen"):
         
-        st.text(f"'{geraet.id}' von {geraet.reservierung_start} bis {geraet.reservierung_end} reserviert.")
-    
+            st.text(f"'{geraet.id}' wird am {geraet.maintenance_date} gewartet.")
+    else :
+        st.text(f"'{geraet.id}' wird nicht gewartet.")
 
+    if geraet and geraet.reservierung_start:
+        if st.button("Reservierungszeitraum anzeigen"):
+            
+            st.text(f"'{geraet.id}' von {geraet.reservierung_start} bis {geraet.reservierung_end} reserviert.")
+    else :
+        st.text(f"'{geraet.id}' ist nicht reserviert.") 
+
+    if geraet and geraet.wartungskosten:
+        if st.button("Wartungskosten anzeigen"):
+            
+            st.text(f"Wartungskosten für'{geraet.id}' betragen {geraet.wartungskosten} €.")
+    else :
+        st.text(f"Für'{geraet.id}' fallen keine Wartungskosten an.")
 
     
 
